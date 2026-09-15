@@ -28,5 +28,6 @@ celery_app.conf.update(
         "app.tasks.notification_tasks",
         "app.tasks.closure_tasks",
         "app.tasks.complaint_tasks",
+        "app.tasks.anomaly_tasks",
     ],
 )

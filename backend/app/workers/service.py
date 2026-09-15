@@ -299,4 +299,15 @@ async def complete_assignment(
         complaint.status = 'pending_citizen_confirmation'
 
     await db.flush()
+
+    # ── Trigger anomaly detection (async via Celery) ─────────────────
+    # Runs feature extraction + scoring + flag generation in background.
+    # Must be after flush so assignment data is visible to the Celery worker.
+    try:
+        from app.tasks.anomaly_tasks import process_anomaly_detection
+        process_anomaly_detection.delay(str(worker_id), str(assignment_uuid))
+    except Exception:
+        # Don't block completion if Celery/Redis is down
+        pass
+
     return assignment

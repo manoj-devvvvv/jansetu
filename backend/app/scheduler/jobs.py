@@ -15,11 +15,14 @@ Schedule overview:
   │ Closure deadline enforcement    │ Every 30 min  │ closure.enforce_deadlines        │
   │ Closure verification reminders  │ Every 1 hour  │ closure.send_reminders          │
   │ Materialized view refresh       │ Every 6 hours │ (direct SQL)                    │
+  │ Anomaly batch scoring           │ Every 6 hours │ anomaly.batch_score_unscored    │
+  │ Anomaly model retraining        │ Weekly (Sun)  │ anomaly.retrain_model           │
   └─────────────────────────────────┴───────────────┴─────────────────────────────────┘
 """
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.cron import CronTrigger
 import logging
 
 logger = logging.getLogger(__name__)
@@ -83,6 +86,13 @@ async def _refresh_materialized_views():
             await db.rollback()
 
 
+def _dispatch_anomaly_batch_scoring():
+    """Dispatch anomaly batch scan to Celery — catches missed completions."""
+    from app.tasks.anomaly_tasks import batch_anomaly_scan
+    batch_anomaly_scan.delay(hours=24)
+    logger.debug("Dispatched anomaly.batch_scan")
+
+
 def register_jobs():
     """Register all scheduled jobs. Called once on app startup."""
 
@@ -140,4 +150,15 @@ def register_jobs():
         replace_existing=True,
     )
 
+    # Anomaly batch scoring — every 6 hours (scores assignments missed by on-demand pipeline)
+    scheduler.add_job(
+        _dispatch_anomaly_batch_scoring,
+        trigger=IntervalTrigger(hours=6),
+        id="anomaly_batch_scoring",
+        name="Anomaly Batch Scoring",
+        replace_existing=True,
+    )
+
+
     logger.info("Registered %d scheduled jobs", len(scheduler.get_jobs()))
+
