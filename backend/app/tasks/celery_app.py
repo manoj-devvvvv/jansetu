@@ -29,5 +29,6 @@ celery_app.conf.update(
         "app.tasks.closure_tasks",
         "app.tasks.complaint_tasks",
         "app.tasks.anomaly_tasks",
+        "app.tasks.intelligence_tasks",
     ],
 )

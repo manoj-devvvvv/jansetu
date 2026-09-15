@@ -159,6 +159,19 @@ def register_jobs():
         replace_existing=True,
     )
 
+    # Historic Intelligence — daily at 3 AM
+    scheduler.add_job(
+        _dispatch_historic_intelligence,
+        trigger=CronTrigger(hour=3, minute=0),
+        id="historic_intelligence",
+        name="Historic Intelligence Pattern Analysis",
+        replace_existing=True,
+    )
 
     logger.info("Registered %d scheduled jobs", len(scheduler.get_jobs()))
 
+def _dispatch_historic_intelligence():
+    """Dispatch historic intelligence processing to Celery."""
+    from app.tasks.intelligence_tasks import analyze_historic_patterns
+    analyze_historic_patterns.delay()
+    logger.debug("Dispatched intelligence.analyze_historic_patterns")
