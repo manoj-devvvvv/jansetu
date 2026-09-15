@@ -153,12 +153,12 @@ async def create_complaint(
     await db.commit()
     await db.refresh(new_complaint)
 
-    # ── Trigger clustering pipeline (async via Celery) ────────────────
-    # This runs embedding generation + master issue clustering in background.
+    # ── Trigger NLP pipeline (async via Celery) ────────────────
+    # This runs transcription (if voice), formalization (LLM), and then clusters.
     # Must be AFTER commit so the complaint row exists in DB for the worker.
     try:
-        from app.tasks.complaint_tasks import process_complaint_clustering
-        process_complaint_clustering.delay(str(new_complaint.id))
+        from app.tasks.media_tasks import process_nlp_pipeline
+        process_nlp_pipeline.delay(str(new_complaint.id))
     except Exception:
         # Don't block complaint submission if Celery/Redis is down
         pass

@@ -30,5 +30,6 @@ celery_app.conf.update(
         "app.tasks.complaint_tasks",
         "app.tasks.anomaly_tasks",
         "app.tasks.intelligence_tasks",
+        "app.tasks.media_tasks",
     ],
 )

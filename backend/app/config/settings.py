@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     MOBILE_HASH_PEPPER: str
     GEMINI_API_KEY: str = ""
     GROQ_API_KEY: str = ""
+    NOMINATIM_URL: str = "https://nominatim.openstreetmap.org"
+    OSRM_URL: str = "https://router.project-osrm.org"
     CORS_ORIGINS: List[str] = ["*"]
     
     JWT_SECRET: str = ""

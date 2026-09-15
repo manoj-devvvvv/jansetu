@@ -8,6 +8,7 @@ from app.api.panchayat import router as panchayat_router
 from app.api.mandal import router as mandal_router
 from app.api.district import router as district_router
 from app.api.worker import router as worker_router
+from app.api.location import router as location_router
 from app.websockets.router import router as websocket_router
 from app.websockets.pubsub import redis_listener
 from app.scheduler.jobs import scheduler, register_jobs
@@ -54,4 +55,5 @@ app.include_router(panchayat_router, prefix="/api/v1/panchayat", tags=["panchaya
 app.include_router(mandal_router, prefix="/api/v1/mandal", tags=["mandal"])
 app.include_router(district_router, prefix="/api/v1/district", tags=["district"])
 app.include_router(worker_router, prefix="/api/v1/worker", tags=["worker"])
+app.include_router(location_router, prefix="/api/v1", tags=["location"])
 app.include_router(websocket_router, tags=["websockets"])
